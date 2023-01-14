@@ -23,3 +23,4 @@ function ImagePopup({ card, isOpen, onClose }) {
 }
 
 export default ImagePopup;
+

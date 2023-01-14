@@ -51,8 +51,11 @@ class Api {
     return fetch(`${this._baseUrl}/cards/${id}`, {
       method: "DELETE",
       headers: this._headers,
-    }).then(this._checkResponse);
+    })
+      .then(this._checkResponse)
+      
   }
+
 
   changeLikeCardStatus(id, isLiked) {
     return isLiked

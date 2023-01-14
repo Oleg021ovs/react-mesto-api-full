@@ -17,3 +17,5 @@ function NavBar({ signOut, userData }) {
 }
 
 export default NavBar;
+
+
