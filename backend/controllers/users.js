@@ -1,35 +1,17 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const AuthError = require('../error/authErr');
 const BadRequestError = require('../error/badReqErr');
 const NotFoundError = require('../error/notFoundErr');
 const ConflictError = require('../error/conflictErr');
-const AuthError = require('../error/authErr');
 
-module.exports.getProfile = (_, res, next) => {
+module.exports.getProfile = (req, res, next) => {
   User.find({})
     .then((user) => {
       res.send({ user });
     })
     .catch((err) => next(err));
-};
-
-module.exports.getPosts = (req, res, next) => {
-  User.findById(req.user)
-    .then((user) => {
-      if (!user) {
-        next(new NotFoundError('Пользователь по указанному id не найден.'));
-        return;
-      }
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Пользователь по указанному id не найден.'));
-        return;
-      }
-      next(err);
-    });
 };
 
 module.exports.getProfileId = (req, res, next) => {
@@ -54,7 +36,8 @@ module.exports.createProfile = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
+  bcrypt
+    .hash(password, 10)
     .then((hash) => User.create({
       name,
       about,
@@ -63,6 +46,7 @@ module.exports.createProfile = (req, res, next) => {
       password: hash, // записываем хеш в базу
     }))
     .then((user) => res.send({
+      _id: user._id,
       name: user.name,
       about: user.about,
       avatar: user.avatar,
@@ -70,7 +54,11 @@ module.exports.createProfile = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя.'));
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при создании пользователя.',
+          ),
+        );
         return;
       }
       if (err.code === 11000) {
@@ -80,22 +68,23 @@ module.exports.createProfile = (req, res, next) => {
       next(err);
     });
 };
+
 module.exports.editProfile = (req, res, next) => {
   const { name, about } = req.body;
-  if (!name || !about) {
-    next(new NotFoundError('Переданы некорректные данные при обновлении профиля.'));
-    return;
-  }
-
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true },
-  )
-    .then((user) => res.send(user))
+  console.log('req.user', req.user);
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      console.log('user', user);
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
+        next(new NotFoundError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
       next(err);
@@ -105,7 +94,9 @@ module.exports.editProfile = (req, res, next) => {
 module.exports.editAvatar = (req, res, next) => {
   const { avatar } = req.body;
   if (!avatar) {
-    next(new NotFoundError('Переданы некорректные данные при обновлении аватара.'));
+    next(
+      new NotFoundError('Переданы некорректные данные при обновлении аватара.'),
+    );
     return;
   }
 
@@ -117,12 +108,17 @@ module.exports.editAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении аватара.'));
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при обновлении аватара.',
+          ),
+        );
         return;
       }
       next(err);
     });
 };
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -131,7 +127,7 @@ module.exports.login = (req, res, next) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        'some-secret-key',
+        'super-strong-secret',
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
@@ -139,4 +135,18 @@ module.exports.login = (req, res, next) => {
       res.send({ token });
     })
     .catch((err) => next(new AuthError(err.message)));
+};
+
+module.exports.getPosts = (req, res, next) => {
+  // console.log(req.user);
+  User.findById(req.user)
+    .then((user) => {
+      // console.log(user);
+      if (!user) {
+        next(new NotFoundError('Пользователь по указанному id не найден.'));
+        return;
+      }
+      res.send(user);
+    })
+    .catch(next);
 };

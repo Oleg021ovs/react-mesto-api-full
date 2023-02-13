@@ -3,12 +3,11 @@ const { celebrate, Joi } = require('celebrate');
 
 const { linkValidate } = require('../constans/constans');
 const {
-  getProfile, getPosts, getProfileId, editProfile, editAvatar,
+  getProfile, getPosts, editProfile, editAvatar, getProfileId,
 } = require('../controllers/users');
 
 userRouter.get('/', getProfile);
-userRouter.get('/users/me', getPosts);
-
+userRouter.get('/me', getPosts);
 userRouter.get('/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().alphanum().required().length(24),
@@ -27,4 +26,5 @@ userRouter.patch('/me/avatar', celebrate({
     avatar: Joi.string().required().pattern(linkValidate),
   }),
 }), editAvatar);
+
 module.exports = userRouter;

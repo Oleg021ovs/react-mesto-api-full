@@ -17,7 +17,7 @@ export default function App() {
 
   const [isTooltipOpened, setIsTooltipOpened] = useState(false);
   const [isSuccessTooltipStatus, setIsSuccessTooltipStatus] = useState(false);
-
+  
   const navigate = useNavigate();
 
   function closeLoginPopup() {
@@ -25,9 +25,11 @@ export default function App() {
   }
 
   function handleRegister({ email, password }) {
+    
     Auth.register({ email, password })
       .then((res) => {
-        setUserData(res.data);
+        setUserData(res.email);
+        navigate("/sign-in");
         setIsSuccessTooltipStatus(true);
         setIsTooltipOpened(true);
       })
@@ -41,14 +43,15 @@ export default function App() {
   }
 
   function handleLogin({ email, password }) {
+    
     Auth.autorisation({ email, password })
 
       .then((res) => {
         if (res.token) {
           setUserLoggedIn(true);
           localStorage.setItem("token", res.token);
-          setUserData({ email: email });
-          //navigate("/");
+          setUserData({ email: res.email });
+          navigate("/");
         }
       })
       .catch((err) => {
@@ -69,7 +72,7 @@ export default function App() {
         .then((res) => {
           setUserLoggedIn(true);
           setUserData(res.data);
-          navigate("/");
+          //navigate("/");
         })
         .catch((err) => {
           if (err === "Ошибка: 400")
@@ -132,4 +135,3 @@ export default function App() {
   );
 }
 //App
-

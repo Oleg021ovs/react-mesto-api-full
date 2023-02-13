@@ -1,16 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-const NotFoundError = require('./error/notFoundErr');
 const { linkValidate } = require('./constans/constans');
-
 const auth = require('./middlewares/auth');
 const { createProfile, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 const app = express();
+app.use(cors());
+// app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -31,20 +32,18 @@ app.post('/signup', celebrate({
   }),
 }), createProfile);
 
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/cards'));
+app.use(auth);
 
-app.use('/', auth);
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
-app.use((req, res, next) => {
-  next(new NotFoundError('404 - Страницы не существует'));
-});
 app.use(errors());
+
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     return res.status(err.statusCode).send({ message: err.message });
   }
-  res.status(500).send({ message: err });
+  res.status(500).send(err.message);
 
   return next();
 });

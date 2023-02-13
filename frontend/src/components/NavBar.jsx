@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function NavBar({ signOut, userData }) {
+function NavBar({ signOut, email }) {
   return (
     <nav className="header__NavBar">
-      <h2 className="header__email">{userData.email}</h2>
+      <h2 className="header__email">{email}</h2>
       <Link
         to="/sign-in"
         onClick={signOut}

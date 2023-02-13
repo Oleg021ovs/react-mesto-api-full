@@ -7,7 +7,7 @@ import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-function Content({ userLoggedIn }) {
+function Content({ userLoggedIn, token }) {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -45,9 +45,10 @@ function Content({ userLoggedIn }) {
   }
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     if (userLoggedIn) {
       console.log(userLoggedIn);
-      Promise.all([api.getProfile(), api.getInitialCards()])
+      Promise.all([api.getProfile(token), api.getInitialCards(token)])
         .then(([res, cards]) => {
           setCurrentUser(res);
           setCards(cards);
@@ -56,7 +57,8 @@ function Content({ userLoggedIn }) {
           console.log(err);
         });
     }
-  }, [userLoggedIn]);
+  }, [userLoggedIn, token]);
+  
 
   // попап аватар
   function handleEditAvatarClick() {
@@ -85,6 +87,8 @@ function Content({ userLoggedIn }) {
     setImagePopupOpen(false);
     setSelectedCard({});
   }
+
+
   function handleEditUser({ name, about }) {
     api
       .editProfile({ name, about })
@@ -96,7 +100,7 @@ function Content({ userLoggedIn }) {
         console.log(err);
       });
   }
-
+ 
   function handleAddPlaceSubmit({ name, link }) {
     api
       .addCard(name, link)
@@ -132,7 +136,7 @@ function Content({ userLoggedIn }) {
             onCardClick={handleCardClick}
             cards={cards}
             onCardLike={handleCardLike}
-            onCardDelete={handleDeleteCard}
+            onCardDelete={handleDeleteCard}           
           />
 
           <EditProfilePopup
