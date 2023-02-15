@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
     return;
   }
 
-  const token = authorization.replace('Bearer ', ' ');
+  const token = authorization.replace('Bearer ', '');
   console.log('token', token);
   let payload;
 

@@ -50,7 +50,7 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
           id="form-name"
           required
           minLength="2"
-          maxLength="40"
+          maxLength="30"
         />
         <span id="error-form-name" className="popup__form-error" />
         <input
@@ -63,7 +63,7 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
           id="form-description"
           required
           minLength="2"
-          maxLength="200"
+          maxLength="30"
         />
         <span id="error-form-description" className="popup__form-error" />
       </fieldset>

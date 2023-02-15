@@ -48,7 +48,7 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
           placeholder="Название"
           required
           minLength={2}
-          maxLength={40}
+          maxLength={30}
           id="formm-name"
         />
         <span id="error-formm-name" className="popup__form-error" />

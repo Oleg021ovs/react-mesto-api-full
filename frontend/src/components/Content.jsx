@@ -7,7 +7,7 @@ import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-function Content({ userLoggedIn, token }) {
+function Content({ userLoggedIn }) {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -16,13 +16,15 @@ function Content({ userLoggedIn, token }) {
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
+  const token = localStorage.getItem("token");
+//лайк карточки
   function handleCardLike(card) {
     // Снова проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
 
     // Отправляем запрос в API и получаем обновлённые данные карточки
     api
-      .changeLikeCardStatus(card._id, !isLiked)
+      .changeLikeCardStatus(card._id, !isLiked, token)
       .then((newCard) => {
         setCards((state) =>
           state.map((item) => (item._id === card._id ? newCard : item))
@@ -32,10 +34,10 @@ function Content({ userLoggedIn, token }) {
         console.log(err);
       });
   }
-
+//удаление карточки
   function handleDeleteCard(card) {
     api
-      .deleteCard(card._id)
+      .deleteCard(card._id, token)
       .then(() => {
         setCards((state) => state.filter((item) => item._id !== card._id));
       })
@@ -43,9 +45,8 @@ function Content({ userLoggedIn, token }) {
         console.log(err);
       });
   }
-
+//запрос информации и данных пользователя и карточек с сервера по токену
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (userLoggedIn) {
       console.log(userLoggedIn);
       Promise.all([api.getProfile(token), api.getInitialCards(token)])
@@ -58,7 +59,6 @@ function Content({ userLoggedIn, token }) {
         });
     }
   }, [userLoggedIn, token]);
-  
 
   // попап аватар
   function handleEditAvatarClick() {
@@ -87,11 +87,10 @@ function Content({ userLoggedIn, token }) {
     setImagePopupOpen(false);
     setSelectedCard({});
   }
-
-
+// изменить пользователя
   function handleEditUser({ name, about }) {
     api
-      .editProfile({ name, about })
+      .editProfile(name, about, token)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -100,10 +99,10 @@ function Content({ userLoggedIn, token }) {
         console.log(err);
       });
   }
- 
+// добавить карточку
   function handleAddPlaceSubmit({ name, link }) {
     api
-      .addCard(name, link)
+      .addCard(name, link, token)
       .then((newCard) => {
         setCards([newCard, ...cards]);
         closeAllPopups();
@@ -112,10 +111,10 @@ function Content({ userLoggedIn, token }) {
         console.log(err);
       });
   }
-
+// изменить аватар пользователя
   function handleUpdateAvatar({ avatar }) {
     api
-      .addAvatar({ avatar })
+      .addAvatar(avatar, token)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -136,7 +135,7 @@ function Content({ userLoggedIn, token }) {
             onCardClick={handleCardClick}
             cards={cards}
             onCardLike={handleCardLike}
-            onCardDelete={handleDeleteCard}           
+            onCardDelete={handleDeleteCard}
           />
 
           <EditProfilePopup

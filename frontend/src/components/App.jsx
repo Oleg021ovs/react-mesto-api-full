@@ -17,15 +17,14 @@ export default function App() {
 
   const [isTooltipOpened, setIsTooltipOpened] = useState(false);
   const [isSuccessTooltipStatus, setIsSuccessTooltipStatus] = useState(false);
-  
+
   const navigate = useNavigate();
 
   function closeLoginPopup() {
     setIsTooltipOpened(false);
   }
-
+  // регистрация
   function handleRegister({ email, password }) {
-    
     Auth.register({ email, password })
       .then((res) => {
         setUserData(res.email);
@@ -42,8 +41,8 @@ export default function App() {
       });
   }
 
+  //авторизация
   function handleLogin({ email, password }) {
-    
     Auth.autorisation({ email, password })
 
       .then((res) => {
@@ -64,8 +63,32 @@ export default function App() {
         console.log(err);
       });
   }
+  // вход по токену
+  useEffect(
+    function handleCheckToken() {
+      if (localStorage.getItem("token")) {
+        const token = localStorage.getItem("token");
+        Auth.checkToken(token)
+          .then((res) => {
+            setUserLoggedIn(true);
+            setUserData(res.data);
+            navigate("/");
+          })
+          .catch((err) => {
+            if (err === "Ошибка: 400")
+              return console.log(
+                "Токен не передан или передан не в том формате"
+              );
+            if (err === "Ошибка: 401")
+              return console.log("Переданный токен некорректен");
+            console.log(err);
+          });
+      }
+    },
+    [navigate]
+  );
 
-  function handleCheckToken() {
+  /*function handleCheckToken() {
     const token = localStorage.getItem("token");
     if (token) {
       Auth.checkToken(token)
@@ -86,9 +109,9 @@ export default function App() {
 
   useEffect(() => {
     handleCheckToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+    navigate("/");
+  }, [navigate]);*/
+// выход
   function handleSignOut() {
     localStorage.removeItem("token");
     setUserLoggedIn(false);
