@@ -107,7 +107,7 @@ class Api {
 
 const api = new Api({
   //baseUrl: "http://localhost:3000",
-  baseUrl: "http://oleg021mesto.nomoredomains.club",
+  baseUrl: "https://api.oleg021mesto.nomoredomains.work",
   headers: {
     //headers: this._headers,
     //authorization: `Bearer ${token},
