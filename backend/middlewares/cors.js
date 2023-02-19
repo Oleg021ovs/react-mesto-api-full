@@ -1,6 +1,8 @@
 const allowedCors = [
   'http://oleg021mesto.nomoredomains.club',
   'https://oleg021mesto.nomoredomains.club',
+  'http://www.oleg021mesto.nomoredomains.club',
+  'https://www.oleg021mesto.nomoredomains.club',
   'https://api.oleg021mesto.nomoredomains.work',
   'http://api.oleg021mesto.nomoredomains.work',
   'http://localhost:3000',
