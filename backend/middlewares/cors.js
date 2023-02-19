@@ -1,7 +1,12 @@
 const allowedCors = [
   'http://oleg021mesto.nomoredomains.club',
   'https://oleg021mesto.nomoredomains.club',
+  'http://www.oleg021mesto.nomoredomains.club',
+  'https://www.oleg021mesto.nomoredomains.club',
+  'http://api.oleg021mesto.nomoredomains.club',
+  'https://api.oleg021mesto.nomoredomains.club',
   'http://localhost:3000',
+  'http://localhost:3001',
 ];
 
 const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
