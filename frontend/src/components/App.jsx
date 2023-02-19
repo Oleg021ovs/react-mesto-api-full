@@ -13,7 +13,7 @@ export default function App() {
   const [userData, setUserData] = useState({
     email: "",
     _id: "",
-  });
+});
 
   const [isTooltipOpened, setIsTooltipOpened] = useState(false);
   const [isSuccessTooltipStatus, setIsSuccessTooltipStatus] = useState(false);
@@ -106,7 +106,6 @@ export default function App() {
         });
     }
   }
-
   useEffect(() => {
     handleCheckToken();
     navigate("/");

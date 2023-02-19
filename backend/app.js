@@ -1,9 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { linkValidate } = require('./constans/constans');
 const auth = require('./middlewares/auth');
 const { createProfile, login } = require('./controllers/users');
@@ -21,10 +23,12 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
+app.use(requestLogger); // подключаем логгер запросов
+
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().email(),
-    password: Joi.string().required().min(8),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
   }),
 }), login);
 
@@ -34,7 +38,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(linkValidate),
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 }), createProfile);
 
@@ -42,6 +46,8 @@ app.use(auth);
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors());
 

@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function NavBar({ signOut, email }) {
+function NavBar({ signOut }) {
   return (
     <nav className="header__NavBar">
-      <h2 className="header__email">{email}</h2>
+      <h2 className="header__email">oo@mail.ru</h2>
       <Link
         to="/sign-in"
         onClick={signOut}
@@ -17,5 +17,4 @@ function NavBar({ signOut, email }) {
 }
 
 export default NavBar;
-
 

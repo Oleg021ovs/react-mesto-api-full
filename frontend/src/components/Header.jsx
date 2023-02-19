@@ -36,4 +36,3 @@ function Header({ handleSignOut, userData }) {
 }
 
 export default Header;
-

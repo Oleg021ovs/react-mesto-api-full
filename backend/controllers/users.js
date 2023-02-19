@@ -1,10 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const AuthError = require('../error/authErr');
 const BadRequestError = require('../error/badReqErr');
 const NotFoundError = require('../error/notFoundErr');
 const ConflictError = require('../error/conflictErr');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.getProfile = (req, res, next) => {
   User.find({})
@@ -71,10 +72,8 @@ module.exports.createProfile = (req, res, next) => {
 
 module.exports.editProfile = (req, res, next) => {
   const { name, about } = req.body;
-  console.log('req.user', req.user);
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      console.log('user', user);
       res.send({
         _id: user._id,
         name: user.name,
@@ -84,7 +83,7 @@ module.exports.editProfile = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new NotFoundError('Переданы некорректные данные при обновлении профиля.'));
+        next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
       next(err);
@@ -93,12 +92,12 @@ module.exports.editProfile = (req, res, next) => {
 
 module.exports.editAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  if (!avatar) {
-    next(
-      new NotFoundError('Переданы некорректные данные при обновлении аватара.'),
-    );
-    return;
-  }
+  // if (!avatar) {
+  // next(
+  // new NotFoundError('Переданы некорректные данные при обновлении аватара.'),
+  // );
+  // return;
+  // }
 
   User.findByIdAndUpdate(
     req.user._id,
@@ -127,21 +126,19 @@ module.exports.login = (req, res, next) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        'super-strong-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret',
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
       // вернём токен
       res.send({ token });
     })
-    .catch((err) => next(new AuthError(err.message)));
+    .catch(next);
 };
 
 module.exports.getPosts = (req, res, next) => {
-  // console.log(req.user);
   User.findById(req.user)
     .then((user) => {
-      // console.log(user);
       if (!user) {
         next(new NotFoundError('Пользователь по указанному id не найден.'));
         return;

@@ -10,7 +10,7 @@ userRouter.get('/', getProfile);
 userRouter.get('/me', getPosts);
 userRouter.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().required().length(24),
+    userId: Joi.string().hex().required().length(24),
   }),
 }), getProfileId);
 
