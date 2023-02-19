@@ -1,4 +1,4 @@
-const allowedCors = [
+/* const allowedCors = [
   'http://oleg021mesto.nomoredomains.club',
   'https://oleg021mesto.nomoredomains.club',
   'http://www.oleg021mesto.nomoredomains.club',
@@ -26,4 +26,4 @@ module.exports = (req, res, next) => {
     }
   }
   next();
-};
+}; */
