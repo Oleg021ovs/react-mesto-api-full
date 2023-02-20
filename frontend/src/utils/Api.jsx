@@ -67,7 +67,6 @@ class Api {
       headers: {
         headers: this._headers,
         authorization: `Bearer ${token}`,
-        //"Content-Type": "application/json",
       },
     }).then(this._checkResponse);
   }
@@ -109,9 +108,6 @@ const api = new Api({
   //baseUrl: "http://localhost:3000",
   baseUrl: "https://api.oleg021mesto.nomoredomains.work",
   headers: {
-    //headers: this._headers,
-    //authorization: `Bearer ${token},
-    //authorization: "c31e051a-30ca-42d1-a852-06e817da4d0d",
     "Content-Type": "application/json",
   },
 });

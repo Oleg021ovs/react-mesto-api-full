@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -8,13 +8,11 @@ import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 import * as Auth from "../utils/Auth.jsx";
 import Content from "./Content";
+
 export default function App() {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const [userData, setUserData] = useState({
-    email: "",
-    _id: "",
-});
-
+  const [userData, setUserData] = useState({ email: "", _id: "", });
+  //console.log(userData, 'userData')
   const [isTooltipOpened, setIsTooltipOpened] = useState(false);
   const [isSuccessTooltipStatus, setIsSuccessTooltipStatus] = useState(false);
 
@@ -23,11 +21,12 @@ export default function App() {
   function closeLoginPopup() {
     setIsTooltipOpened(false);
   }
+
   // регистрация
   function handleRegister({ email, password }) {
     Auth.register({ email, password })
       .then((res) => {
-        setUserData(res.email);
+        setUserData(res.data);
         navigate("/sign-in");
         setIsSuccessTooltipStatus(true);
         setIsTooltipOpened(true);
@@ -44,12 +43,12 @@ export default function App() {
   //авторизация
   function handleLogin({ email, password }) {
     Auth.autorisation({ email, password })
-
+    
       .then((res) => {
         if (res.token) {
           setUserLoggedIn(true);
           localStorage.setItem("token", res.token);
-          setUserData({ email: res.email });
+          setUserData({ email: email });
           navigate("/");
         }
       })
@@ -63,53 +62,36 @@ export default function App() {
         console.log(err);
       });
   }
-  // вход по токену
-  useEffect(
-    function handleCheckToken() {
-      if (localStorage.getItem("token")) {
-        const token = localStorage.getItem("token");
-        Auth.checkToken(token)
-          .then((res) => {
-            setUserLoggedIn(true);
-            setUserData(res.data);
-            navigate("/");
-          })
-          .catch((err) => {
-            if (err === "Ошибка: 400")
-              return console.log(
-                "Токен не передан или передан не в том формате"
-              );
-            if (err === "Ошибка: 401")
-              return console.log("Переданный токен некорректен");
-            console.log(err);
-          });
-      }
-    },
-    [navigate]
-  );
 
-  /*function handleCheckToken() {
+ // вход по токену
+  const handleCheckToken = useCallback(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      Auth.checkToken(token)
-        .then((res) => {
+    Auth.checkToken(token)
+      .then((res) => {
+        if(res) {
           setUserLoggedIn(true);
-          setUserData(res.data);
-          //navigate("/");
-        })
-        .catch((err) => {
-          if (err === "Ошибка: 400")
-            return console.log("Токен не передан или передан не в том формате");
-          if (err === "Ошибка: 401")
-            return console.log("Переданный токен некорректен");
-          console.log(err);
-        });
-    }
-  }
+          setUserData({ email: res.email });
+          navigate("/");          
+        } else {
+          setUserLoggedIn(false);
+          navigate("/sign-in");
+        }
+      })
+      .catch((err) => {
+        if (err === "Ошибка: 400")
+          return console.log(
+            "Токен не передан или передан не в том формате"
+          );
+        if (err === "Ошибка: 401")
+          return console.log("Переданный токен некорректен");
+        console.log(err);
+      });
+  }, [navigate]);
+
   useEffect(() => {
-    handleCheckToken();
-    navigate("/");
-  }, [navigate]);*/
+    handleCheckToken()
+  }, [handleCheckToken]);
+
 // выход
   function handleSignOut() {
     localStorage.removeItem("token");
@@ -122,7 +104,7 @@ export default function App() {
     <div className="root">
       <div className="page">
         <Header handleSignOut={handleSignOut} userData={userData} />
-
+        
         <Routes>
           <Route
             path="/"
@@ -130,6 +112,7 @@ export default function App() {
               <ProtectedRoute
                 userLoggedIn={userLoggedIn}
                 component={Content}
+               
               ></ProtectedRoute>
             }
           />
